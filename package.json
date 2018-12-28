@@ -1,0 +1,22 @@
+{
+  "name": "effai-me-blog",
+  "version": "1.0.0",
+  "description": "Effai.me blog",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/opensourceportfolio/effai-me.github.io.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/opensourceportfolio/effai-me.github.io/issues"
+  },
+  "homepage": "https://github.com/opensourceportfolio/effai-me.github.io#readme",
+  "devDependencies": {
+    "firebase-tools": "^6.2.2"
+  }
+}
