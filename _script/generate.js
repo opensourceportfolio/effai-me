@@ -22,7 +22,7 @@ glob('public/**/*.html', (err, posts) => {
     return {
       creator: p.creator,
       title: p.title,
-      link: getUrl(guid, posts) || p.link,
+      link: (getUrl(guid, posts) || p.link).replace('public/', ''),
       pubDate: p.pubDate,
       guid,
       preview,
