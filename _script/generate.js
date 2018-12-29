@@ -1,18 +1,34 @@
 const fs = require('fs');
+const jsdom = require('jsdom');
+const glob = require('glob');
 const previews = require('./preview.json');
+const { JSDOM } = jsdom;
 
 function uniqBy(pred, list) {
   return [...new Map(list.map(item => [pred(item), item])).values()];
 }
 
-const uniquePreviews = uniqBy(preview => preview.title, previews);
-const guids = uniquePreviews.map(p => p.guid.slice(-10));
+function getUrl(guid, posts) {
+  return posts.find(p => p.indexOf(guid) > -1);
+}
 
-const articles = fs.readdirSync('../public/posts/');
-const missingArticles = articles.filter(article => guids.every(g => article.indexOf(g) === -1));
-
-console.log('guids: ', guids.length);
-console.log('uniquePreviews: ', uniquePreviews.length);
-console.log('articles: ', articles.length);
-console.log('missingArticles: ', missingArticles.length);
-console.log('missingArticles: ', missingArticles);
+glob('public/**/*.html', (err, posts) => {
+  const uniquePreviews = uniqBy(preview => preview.title, previews);
+  const formattedPreviews = uniquePreviews.map(p => {
+    const guid = p.guid.replace('https://medium.com/p/', '');
+    const preview = JSDOM.fragment(p['content:encoded']).textContent.slice(0, 120);
+    const img = JSDOM.fragment(p['content:encoded']).querySelector('img[src$="jpeg"]');
+    const thumbnail = img ? img.src : null;
+    return {
+      creator: p.creator,
+      title: p.title,
+      link: getUrl(guid, posts) || p.link,
+      pubDate: p.pubDate,
+      guid,
+      preview,
+      categories: p.categories,
+      thumbnail,
+    };
+  });
+  fs.writeFileSync('_script/res.json', JSON.stringify(formattedPreviews));
+});

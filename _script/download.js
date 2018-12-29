@@ -1,5 +1,7 @@
 const fs = require('fs');
 const request = require('./request');
+const Parser = require('rss-parser');
+const parser = new Parser();
 
 const tags = [
   'Advice',
@@ -23,7 +25,7 @@ const tags = [
   'Inspiration',
   'Intentional-Life',
   'Intentional-Living',
-  'Knowledge'
+  'Knowledge',
   'Mentorship',
   'Mindfulness',
   'Minimalism',
@@ -54,14 +56,12 @@ const fetch = async (hostname, path) => {
 };
 
 const previews = tags.reduce(async (promise, tag) => {
-  const host = 'feed2json.org';
-  const path = encodeURI(`/convert?url=${rss_url}${tag}`);
-
   const prev = await promise;
-  const current = await fetch(host, path);
+  const current = await parser.parseURL(`${rss_url}${tag}`);
 
   if (!current.items) {
     console.log(tag);
+    console.log(current);
   }
 
   return [...prev, ...current.items];

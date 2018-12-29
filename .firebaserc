@@ -1,5 +1,21 @@
 {
   "projects": {
     "default": "effai-blog"
+  },
+  "hosting": {
+    "public": "./public",
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ],
+    "ignore": [
+      "firebase.json",
+      "calculations.xlsx",
+      "**/.*",
+      "**/node_modules/**",
+      "**/src/**"
+    ]
   }
 }

@@ -2,14 +2,16 @@ function extractContent(html) {
   return new DOMParser().parseFromString(html, 'text/html').documentElement.textContent;
 }
 
-function template({ date, thumbnail, preview, link, title, author }) {
+function template({ date, thumbnail, preview, link, title, creator }) {
   const dateOpt = { day: 'numeric', month: 'short' };
+  const logo_url = 'https://effai.me/favicon.ico';
+  const thumbnailUrl = thumbnail || logo_url;
 
   return `
     <div class="blog">
       <header>
         <h4 class="blog__date">${date.toLocaleString('en-US', dateOpt)}</h4>
-        <img class="blog__thumbnail" src="${thumbnail}">
+        <img class="blog__thumbnail" src="${thumbnailUrl}">
       </header>
       <div class="blog__content">
         <h4>
@@ -18,7 +20,7 @@ function template({ date, thumbnail, preview, link, title, author }) {
           </a>
         </h4>
         <div class="blog__author">
-          <span>By ${author}</span>
+          <span>By ${creator}</span>
         </div>
         <p class="blog__preview">${preview}...</p>
       </div>
@@ -26,26 +28,27 @@ function template({ date, thumbnail, preview, link, title, author }) {
     `;
 }
 
+function getJson(request) {
+  return request.then(res => (res.ok ? res.json() : []));
+}
+
 window.onload = async function() {
   const $content = document.querySelector('.blog__layout');
-  const parameters = {
-    rss_url: 'https://medium.com/feed/effai-me',
-  };
-  const params = Object.entries(parameters).map(([key, val]) => `${key}=${val}`).join('&');
+  const rss_url = 'https://medium.com/feed/effai-me';
 
-  const response = await fetch(`https://api.rss2json.com/v1/api.json?${params}`);
+  const previews = await getJson(fetch(`res.json`));
 
-  if (response.ok) {
-    const json = await response.json();
-    const data = json.items.map(({ pubDate, description, link, title, author, thumbnail }) => {
+  const data = previews
+    .map(({ pubDate, preview, link, title, creator, thumbnail }) => {
       const date = new Date(Date.parse(pubDate));
-      const preview = extractContent(description).slice(0, 120);
 
-      return { date, thumbnail, preview, link, title, author };
+      return { date, thumbnail, preview, link, title, creator };
+    })
+    .sort(function(f, s) {
+      return Number(s.date) - Number(f.date);
     });
 
-    const templates = data.map(template);
+  const templates = data.map(template);
 
-    $content.innerHTML = templates.join('');
-  }
+  $content.innerHTML = templates.join('');
 };
